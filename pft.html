@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal Finance Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* CSS styles combined from all previous pages and theme support */
+    body {
+      font-family: 'Segoe UI', 'Lobster', 'Bangers', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      color: #fff;
+      min-height: 100vh;
+      background: linear-gradient(120deg, #a6c0fe, #f68084);
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    .dark-theme {
+      background: #121212;
+      color: #e1e1e1;
+    }
+    .main-container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 32px 24px 60px 24px;
+      border-radius: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+      min-height: 650px;
+      position: relative;
+      overflow: visible;
+      background: #452c63ee;
+      transition: background-color 0.4s ease;
+    }
+    .dark-theme .main-container {
+      background: #1e1e1ecc;
+      box-shadow: 0 8px 30px #000000bb;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .centered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .title-main {
+      font-family: 'Bangers', cursive;
+      font-size: 2.6em;
+      text-shadow: 2px 4px 12px #333;
+      margin-bottom: 16px;
+      color: #ffd740;
+      transition: color 0.4s ease;
+    }
+    .dark-theme .title-main {
+      color: #a5d6ff;
+      text-shadow: 2px 4px 14px #030a36;
+    }
+    .info-list {
+      list-style: none;
+      margin: 0 0 32px 0;
+      padding: 0;
+      width: 80%;
+      font-family: 'Lobster', cursive;
+      color: #ffd740;
+      transition: color 0.4s ease;
+    }
+    .dark-theme .info-list {
+      color: #a5d6ff;
+    }
+    .info-list li {
+      background: #4e3c72cc;
+      padding: 18px 16px;
+      margin-bottom: 18px;
+      border-radius: 18px;
+      font-size: 1.27em;
+      box-shadow: 0 4px 14px #fff1;
+      color: inherit;
+      font-family: 'Lobster', cursive;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .info-list li:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 26px #ffd74088;
+    }
+    .welcome-desc {
+      font-size: 1.11em;
+      color: #f9ddc8;
+      font-family: 'Segoe UI';
+      margin-bottom: 32px;
+    }
+    .nav-btn {
+      margin: 18px 0 0 0;
+      padding: 14px 38px;
+      border-radius: 28px;
+      font-size: 1.25em;
+      background: #4caf50;
+      color: white;
+      border: none;
+      font-family: 'Bangers', cursive;
+      font-weight: 700;
+      box-shadow: 0 6px 18px #388e3c;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      user-select: none;
+      align-self: center;
+      display: block;
+      width: 180px;
+      text-align: center;
+      box-sizing: border-box;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      background: #66bb6a;
+      box-shadow: 0 12px 28px #388e3c;
+    }
+    /* Dashboard/Home Page Styling */
+    .balance-section {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 18px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px #00f2fecf;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .stats-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .stat {
+      flex: 1;
+      margin: 0 10px;
+      padding: 20px 0;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.13rem;
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.18);
+    }
+    .income-bg {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      color: #fff;
+    }
+    .expenses-bg {
+      background: linear-gradient(135deg, #ff2851 0%, #d500f9 100%);
+      color: #fff;
+    }
+    .savings-bg {
+      background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+      color: #222;
+    }
+    .quick-add {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .quick-add button {
+      padding: 14px 32px;
+      background: #ffe082;
+      color: #452c63;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px #eca31586;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .quick-add button:hover {
+      background: #ffd740;
+    }
+    .chart-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    #pie-chart {
+      width: 220px !important;
+      height: 220px !important;
+      margin: 0 auto;
+    }
+    .motivation-section {
+      text-align: center;
+      font-size: 1.13em;
+      color: #ffe082;
+      margin-top: 14px;
+    }
+    .transaction-form {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .transaction-form select,
+    .transaction-form input {
+      width: 30%;
+      margin: 6px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    .transaction-form button {
+      margin-top: 10px;
+    }
+    .txn-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff2;
+      color: #fff;
+    }
+    .txn-table th,
+    .txn-table td {
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+    .txn-table th {
+      background: #7046ab;
+      font-weight: 700;
+    }
+    .txn-table tbody tr:nth-child(even) {
+      background: #332042a0;
+    }
+    .del-btn {
+      background: #ff415b;
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .search-bar {
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .search-bar input,
+    .search-bar select {
+      padding: 9px 12px;
+      margin: 3px;
+      border-radius: 9px;
+      border: none;
+      width: 28%;
+      color: #3d3d3d;
+    }
+    .search-bar select {
+      width: 30%;
+    }
+    .page-label {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4em;
+      text-align: center;
+      color: #87f5fb;
+      margin-bottom: 8px;
+    }
+    /* Budget Page Styling */
+    .budget-list {
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+    .budget-item {
+      background: #5c33f6cc;
+      border-radius: 18px;
+      margin-bottom: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 18px #aa97ff88;
+    }
+    .budget-item h4 {
+      margin: 0 0 14px 0;
+      font-size: 1.3rem;
+      font-family: 'Bangers', cursive;
+      color: #ffdf64;
+      text-shadow: 2px 0 3px #5c33f678;
+    }
+    .progress-container {
+      width: 100%;
+      background: #dcedff44;
+      height: 18px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgb(0 0 0 / 0.15);
+    }
+    .progress-bar {
+      height: 18px;
+      width: 0;
+      background: linear-gradient(90deg, #00f260, #0575e6);
+      transition: width 0.4s ease;
+    }
+    .progress-bar.over-limit {
+      background: linear-gradient(90deg, #f84a4a, #820000);
+      box-shadow: 0 0 12px #f84a4aaa;
+    }
+    .budget-form {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .budget-form select,
+    .budget-form input {
+      width: 40%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 600;
+      margin-bottom: 18px;
+      font-size: 1.1em;
+      color: #5119b7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e8dcffcc;
+      box-shadow: 0 8px 12px #cdbaeaff inset;
+      transition: box-shadow 0.3s ease;
+    }
+    .budget-form button {
+      background: #e74040;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 22px;
+      font-weight: 900;
+      font-family: 'Bangers', cursive;
+      font-size: 1.25em;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 18px #ee5050cc;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .budget-form button:hover {
+      background: #ff5252;
+      box-shadow: 0 12px 28px #ee5050cc;
+    }
+    /* Goals Page Styling */
+    .goals-list {
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+    .goal-item {
+      background: #3a7bd5cc;
+      border-radius: 18px;
+      margin-bottom: 18px;
+      padding: 20px;
+      box-shadow: 0 5px 20px #1e3f72cc;
+      color: #d9eefe;
+      font-family: 'Segoe UI';
+    }
+    .goal-item h4 {
+      margin: 0 0 12px 0;
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: #fffb96;
+      text-shadow: 1px 0 4px #495f75cc;
+    }
+    .goal-progress-container {
+      width: 100%;
+      background: #ccc;
+      height: 20px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgb(0 0 0 / 0.1);
+    }
+    .goal-progress-bar {
+      height: 20px;
+      width: 0;
+      background: linear-gradient(90deg, #ffd700, #008000);
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px #81c784bb;
+    }
+    .goal-progress-bar.completed {
+      background: #00ff88;
+      box-shadow: 0 0 14px #00ffccdd;
+    }
+    .goal-info {
+      margin-top: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #e1ffdb;
+      text-shadow: 1px 1px 2px #022402cc;
+    }
+    .goal-form {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .goal-form input[type='text'],
+    .goal-form input[type='number'] {
+      width: 50%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 600;
+      margin: 10px 0 20px 0;
+      font-size: 1.15em;
+      color: #044827;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #dceddbcc;
+      box-shadow: 0 8px 12px #b2deb6ff inset;
+      transition: box-shadow 0.3s ease;
+    }
+    .goal-form button {
+      background: #2e7d32;
+      color: white;
+      padding: 14px 36px;
+      border-radius: 26px;
+      font-weight: 900;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3em;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 18px #5a995dcc;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .goal-form button:hover {
+      background: #4caf50;
+      box-shadow: 0 12px 30px #66bb6acc;
+    }
+    /* Settings Page Styling */
+    .form-section {
+      width: 90%;
+      margin: 0 auto 32px auto;
+      color: #ffd740;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.15em;
+    }
+    .dark-theme .form-section {
+      color: #a5d6ff;
+    }
+    label {
+      display: block;
+      margin: 18px 0 8px 0;
+    }
+    input[type='text'],
+    .category-input,
+    select {
+      width: 100%;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      font-size: 1em;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      color: #452c63;
+      font-family: 'Segoe UI';
+      background: #e8dcffcc;
+      box-shadow: 0 8px 12px #cdbaeaff inset;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+    .dark-theme input[type='text'],
+    .dark-theme .category-input,
+    .dark-theme select {
+      color: #c2e0f7;
+      background: #2d2d3acc;
+      box-shadow: inset 0 8px 12px #15151c;
+    }
+    input[type='text']:focus,
+    .category-input:focus,
+    select:focus {
+      box-shadow: 0 8px 12px #a9bfffcc inset;
+    }
+    .dark-theme input[type='text']:focus,
+    .dark-theme .category-input:focus,
+    .dark-theme select:focus {
+      box-shadow: inset 0 8px 12px #4a5fcf;
+    }
+    .btn-primary {
+      background: #4caf50;
+      color: white;
+      padding: 14px 28px;
+      font-weight: 700;
+      font-family: 'Bangers', cursive;
+      font-size: 1.2em;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 18px #388e3c;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: #66bb6a;
+      box-shadow: 0 12px 28px #388e3c;
+    }
+    .category-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 18px;
+      padding: 10px 12px;
+      background: #5e3cd622;
+      border-radius: 18px;
+      box-shadow: 0 0 16px #6d44ffcc inset;
+    }
+    .category-list button {
+      background: #ff5252;
+      border: none;
+      padding: 6px 12px;
+      margin-left: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      font-weight: 700;
+      transition: background 0.25s ease;
+    }
+    .category-list button:hover {
+      background: #ff3131;
+    }
+    .category-entry {
+      font-size: 1.12em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #d7ccff;
+    }
+    .dark-theme .category-list {
+      background: #2e2e3fcc;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 720px) {
+      .main-container {
+        width: 96%;
+        padding: 12px 12px 70px 12px;
+      }
+      .stats-section {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .stat {
+        width: 98%;
+      }
+      .transaction-form select,
+      .transaction-form input,
+      .budget-form select,
+      .budget-form input,
+      .goal-form input[type='text'],
+      .goal-form input[type='number'] {
+        width: 96%;
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Info/Welcome Page -->
+    <div id="welcomePage" class="centered">
+      <div class="title-main">Personal Finance Tracker</div>
+      <p class="welcome-desc">Take control of your money and meet your goals with our smart, innovative tracker!</p>
+      <ul class="info-list">
+        <li><span style="font-size:1.3em;">🏠 Dashboard</span><br>
+          Overview of balance, income, expenses, and visual spending breakdown.
+        </li>
+        <li><span style="font-size:1.3em;">📜 Transactions Page</span><br>
+          View and manage a full list of income and expenses with search and filters.</li>
+        <li><span style="font-size:1.3em;">📊 Budget Page</span><br>
+          Set monthly/category spending limits with colorful progress bars that warn on overspending.</li>
+        <li><span style="font-size:1.3em;">🎯 Goals Page</span><br>
+          Set your savings goals and track progress as you save!</li>
+        <li><span style="font-size:1.3em;">⚙️ Settings Page</span><br>
+          Customize theme and manage income/expense categories easily.</li>
+      </ul>
+      <button id="nextBtn1" class="nav-btn">Next &rarr;</button>
+    </div>
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="hidden">
+      <div style="display:flex; justify-content:center; gap: 32px; margin-bottom: 14px;">
+        <button id="backBtn1" class="nav-btn" style="width: 140px;">&larr; Previous</button>
+        <button id="nextBtn2" class="nav-btn" style="width: 140px;">Next &rarr;</button>
+      </div>
+      <div class="title-main" style="font-size:2em;margin:16px 0 14px 0;">Home Dashboard</div>
+      <div class="balance-section">
+        <h2>Your Balance</h2>
+        <p id="balance"><strong>₹0</strong></p>
+      </div>
+      <div class="stats-section">
+        <div class="stat income-bg">
+          <h3>Total Income</h3>
+          <p id="income">₹0</p>
+        </div>
+        <div class="stat expenses-bg">
+          <h3>Total Expenses</h3>
+          <p id="expenses">₹0</p>
+        </div>
+        <div class="stat savings-bg">
+          <h3>Total Savings</h3>
+          <p id="savings">₹0</p>
+        </div>
+      </div>
+      <div class="quick-add">
+        <button id="addIncomeBtn">Add Income</button>
+        <button id="addExpenseBtn">Add Expense</button>
+      </div>
+      <div class="transaction-form">
+        <select id="txnCategory">
+        </select>
+        <input type="number" id="txnAmount" min="1" placeholder="Amount" />
+        <button id="addTxnBtn">Add Transaction</button>
+      </div>
+      <div class="chart-section">
+        <h2>Spending Breakdown</h2>
+        <canvas id="pie-chart"></canvas>
+      </div>
+      <div class="motivation-section">
+        <p><em>"Save your money and your money will save you."</em></p>
+      </div>
+    </div>
+    <!-- Transactions Page -->
+    <div id="transactionsPage" class="hidden">
+      <div style="display:flex; justify-content:center; gap: 32px; margin-bottom: 14px;">
+        <button id="backBtn2" class="nav-btn" style="width: 140px;">&larr; Previous</button>
+        <button id="nextBtn3" class="nav-btn" style="width: 140px;">Next &rarr;</button>
+      </div>
+      <div class="title-main" style="font-size:2em;margin:16px 0 14px 0;">Transactions</div>
+      <div class="page-label">View, Search, and Manage All Your Transactions!</div>
+      <div class="search-bar">
+        <input id="searchInput" type="text" placeholder="Search by category..." />
+        <select id="filterType">
+          <option value="">All Types</option>
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+      </div>
+      <table class="txn-table">
+        <thead>
+          <tr><th>#</th><th>Type</th><th>Category</th><th>Amount</th><th>Date</th><th>Delete</th></tr>
+        </thead>
+        <tbody id="txnTableAll">
+        </tbody>
+      </table>
+      <div style="text-align:center;color:#4dd0e1;margin-top:6px;font-size:1.1em;">
+        <span id="txnCountSpan"></span>
+      </div>
+    </div>
+    <!-- Budget Page -->
+    <div id="budgetPage" class="hidden">
+      <div style="display:flex; justify-content:center; gap: 32px; margin-bottom: 14px;">
+        <button id="backBtn3" class="nav-btn" style="width: 140px;">&larr; Previous</button>
+        <button id="nextBtn4" class="nav-btn" style="width: 140px;">Next &rarr;</button>
+      </div>
+      <div class="title-main" style="font-size:2em;margin-bottom: 16px;">Budget Limits</div>
+      <div class="budget-form">
+        <label for="budgetCategory" style="color:#ffd740">Select Category / Monthly</label><br />
+        <select id="budgetCategory">
+        </select>
+        <br />
+        <label for="budgetAmount" style="color:#ffd740; margin-top: 10px;">Set Spending Limit (₹)</label><br />
+        <input type="number" id="budgetAmount" min="1" placeholder="Limit amount" />
+        <br />
+        <button id="budgetSetBtn">Set Budget</button>
+      </div>
+      <h3 style="color:#ffd740; margin-bottom: 16px;">Your Budget Limits</h3>
+      <div id="budgetList" class="budget-list"></div>
+    </div>
+    <!-- Goals Page -->
+    <div id="goalsPage" class="hidden">
+      <div style="display:flex; justify-content:center; gap: 32px; margin-bottom: 14px;">
+        <button id="backBtn4" class="nav-btn" style="width: 140px;">&larr; Previous</button>
+        <button id="nextBtn5" class="nav-btn" style="width: 140px;">Next &rarr;</button>
+      </div>
+      <div class="title-main" style="font-size:2em;margin-bottom: 24px;">Savings Goals Tracker</div>
+      <div class="goal-form">
+        <input type="text" id="goalName" placeholder="Goal name (e.g. Laptop, Trip)" />
+        <input type="number" id="goalTarget" min="1" placeholder="Target Amount (₹)" />
+        <button id="goalAddBtn">Add Goal</button>
+      </div>
+      <div class="goals-list" id="goalList">
+        <!-- populated dynamically -->
+      </div>
+    </div>
+    <!-- Settings Page -->
+    <div id="settingsPage" class="hidden">
+      <div class="nav-btn-container">
+        <button id="backBtn5" class="nav-btn">&larr; Previous</button>
+        <button id="nextBtn6" class="nav-btn">Next &rarr;</button>
+      </div>
+      <div class="title-main">Settings</div>
+      <div class="form-section">
+        <label for="themeToggle">Select Theme:</label>
+        <select id="themeToggle" aria-label="Select Theme">
+          <option value="light">Light Mode</option>
+          <option value="dark">Dark Mode</option>
+        </select>
+      </div>
+      <div class="form-section">
+        <label>Manage Categories:</label>
+        <input id="newCategoryInput" class="category-input" type="text" placeholder="Add new category" />
+        <button id="addCategoryBtn" class="btn-primary" aria-label="Add new category">Add Category</button>
+        <div id="categoryList" class="category-list" aria-live="polite" aria-atomic="true">
+          <!-- categories listed here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Navigation for all pages
+    const pages = {
+      welcomePage: document.getElementById('welcomePage'),
+      dashboardPage: document.getElementById('dashboardPage'),
+      transactionsPage: document.getElementById('transactionsPage'),
+      budgetPage: document.getElementById('budgetPage'),
+      goalsPage: document.getElementById('goalsPage'),
+      settingsPage: document.getElementById('settingsPage')
+    };
+    const navMap = [
+      ['welcomePage', 'dashboardPage'],
+      ['dashboardPage', 'transactionsPage'],
+      ['transactionsPage', 'budgetPage'],
+      ['budgetPage', 'goalsPage'],
+      ['goalsPage', 'settingsPage'],
+      ['settingsPage', 'welcomePage']
+    ];
+    function showPage(pageName) {
+      for (const key in pages) {
+        pages[key].classList.add('hidden');
+      }
+      pages[pageName].classList.remove('hidden');
+    }
+    function findPageIndex(pageName) {
+      return navMap.findIndex(pair => pair[0] === pageName);
+    }
+    function nextPage(current) {
+      const idx = findPageIndex(current);
+      if (idx >= 0) {
+        return navMap[idx][1];
+      }
+      return null;
+    }
+    function prevPage(current) {
+      const idx = navMap.findIndex(pair => pair[1] === current);
+      if (idx >= 0) {
+        return navMap[idx][0];
+      }
+      return null;
+    }
+
+    // Setup next/prev click listeners for pages with buttons
+    navMap.forEach(([fromPage, toPage]) => {
+      const pageElem = pages[fromPage];
+      const nextBtn = pageElem.querySelector('.nav-btn[style*="Next"], .nav-btn[style*="next"]') ||
+                      pageElem.querySelector('button[id^=nextBtn]');
+      if (nextBtn) {
+        nextBtn.onclick = () => showPage(toPage);
+      }
+      const prevBtn = pages[toPage].querySelector('.nav-btn[style*="Previous"], .nav-btn[style*="prev"]') || 
+                      pages[toPage].querySelector('button[id^=backBtn]');
+      if (prevBtn) {
+        prevBtn.onclick = () => showPage(fromPage);
+      }
+    });
+
+    // Main app state and variables
+    let income = 0, expenses = 0;
+    let transactions = [];
+    let budgets = {};
+    let goals = [];
+    let categories = [];
+
+    // DOM references reused from previous pages
+    const incomeElem = document.getElementById('income');
+    const expensesElem = document.getElementById('expenses');
+    const savingsElem = document.getElementById('savings');
+    const balanceElem = document.getElementById('balance');
+    const txnCategorySelect = document.getElementById('txnCategory');
+    const txnAmount = document.getElementById('txnAmount');
+    const addTxnBtn = document.getElementById('addTxnBtn');
+    const addIncomeBtn = document.getElementById('addIncomeBtn');
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const pieCtx = document.getElementById('pie-chart').getContext('2d');
+    const pieColors = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#7cffb2'];
+
+    // Transactions page refs
+    const txnTableAll = document.getElementById('txnTableAll');
+    const txnCountSpan = document.getElementById('txnCountSpan');
+    const searchInput = document.getElementById('searchInput');
+    const filterType = document.getElementById('filterType');
+
+    // Budget Page refs
+    const budgetCategorySelect = document.getElementById('budgetCategory');
+    const budgetAmountInput = document.getElementById('budgetAmount');
+    const budgetSetBtn = document.getElementById('budgetSetBtn');
+    const budgetList = document.getElementById('budgetList');
+
+    // Goals Page refs
+    const goalNameInp = document.getElementById('goalName');
+    const goalTargetInp = document.getElementById('goalTarget');
+    const goalAddBtn = document.getElementById('goalAddBtn');
+    const goalListDiv = document.getElementById('goalList');
+
+    // Settings Page refs
+    const themeSelect = document.getElementById('themeToggle');
+    const body = document.body;
+    const categoryListDiv = document.getElementById('categoryList');
+    const newCatInput = document.getElementById('newCategoryInput');
+    const addCatBtn = document.getElementById('addCategoryBtn');
+
+    // Initialize pie chart
+    let pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: { labels: [], datasets: [{ data: [], backgroundColor: pieColors }] },
+      options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
+    });
+
+    // Theme functions
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        body.classList.add('dark-theme');
+      } else {
+        body.classList.remove('dark-theme');
+      }
+      localStorage.setItem('theme', theme);
+      themeSelect.value = theme;
+    }
+    themeSelect.onchange = () => setTheme(themeSelect.value);
+    // Load theme saved if any
+    const savedTheme = localStorage.getItem('theme');
+    setTheme(savedTheme || 'light');
+
+    // Categories management
+    const defaultCategories = ['Food', 'Groceries', 'Rent', 'Travel', 'Shopping', 'Bills', 'Other'];
+    function loadCategories() {
+      let savedCats = localStorage.getItem('budget_categories');
+      if (savedCats) {
+        try {
+          let parsed = JSON.parse(savedCats);
+          if (Array.isArray(parsed) && parsed.length) {
+            categories = parsed;
+            return;
+          }
+        } catch {}
+      }
+      categories = defaultCategories.slice();
+    }
+    function saveCategories() {
+      localStorage.setItem('budget_categories', JSON.stringify(categories));
+    }
+    function renderCategoryList() {
+      categoryListDiv.innerHTML = '';
+      categories.forEach((cat, idx) => {
+        const div = document.createElement('div');
+        div.className = 'category-entry';
+        div.textContent = cat;
+        if (defaultCategories.includes(cat)) {
+          // do not allow remove of default categories
+          categoryListDiv.appendChild(div);
+          return;
+        }
+        let delBtn = document.createElement('button');
+        delBtn.textContent = 'Remove';
+        delBtn.setAttribute('aria-label', 'Remove category ' + cat);
+        delBtn.onclick = () => {
+          if (confirm(`Delete category "${cat}"?`)) {
+            categories.splice(idx, 1);
+            saveCategories();
+            renderCategoryList();
+            refreshAllCategorySelects();
+          }
+        };
+        div.appendChild(delBtn);
+        categoryListDiv.appendChild(div);
+      });
+    }
+    addCatBtn.onclick = () => {
+      let newCat = newCatInput.value.trim();
+      if (!newCat) {
+        alert('Please enter a category name');
+        return;
+      }
+      if (categories.includes(newCat)) {
+        alert('Category already exists.');
+        return;
+      }
+      categories.push(newCat);
+      newCatInput.value = '';
+      saveCategories();
+      renderCategoryList();
+      refreshAllCategorySelects();
+    }
+    function refreshAllCategorySelects() {
+      const toUpdate = [txnCategorySelect, budgetCategorySelect];
+      toUpdate.forEach(sel => {
+        let selectedVal = sel.value;
+        sel.innerHTML = '';
+        categories.forEach(cat => {
+          let opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          sel.appendChild(opt);
+        });
+        if (sel === budgetCategorySelect) {
+          if (![...sel.options].some(o => o.value === '__monthly__')) {
+            let monthlyOpt = document.createElement('option');
+            monthlyOpt.value = '__monthly__';
+            monthlyOpt.textContent = 'Monthly Total';
+            sel.insertBefore(monthlyOpt, sel.firstChild);
+          }
+        }
+        sel.value = selectedVal && categories.includes(selectedVal) ? selectedVal : sel.options[0].value;
+      });
+    }
+    loadCategories();
+    renderCategoryList();
+    refreshAllCategorySelects();
+
+    // Update dashboard summary & goals progress
+    function updateSummary() {
+      let totalSavings = income - expenses;
+      savingsElem.textContent = totalSavings;
+      balanceElem.innerHTML = `<strong>₹${totalSavings}</strong>`;
+      incomeElem.textContent = `₹${income}`;
+      expensesElem.textContent = `₹${expenses}`;
+      renderGoalsList();
+    }
+
+    // Add transaction
+    function addTransaction(type, category, amount) {
+      if (!category || isNaN(amount) || amount <= 0) return;
+      const dateStr = new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
+      transactions.push({ type, category, amount, date: dateStr });
+      if (type === 'income') income += amount;
+      else expenses += amount;
+      updateSummary();
+      updatePieChart();
+      renderTransactionsTableAll(searchInput.value, filterType.value);
+      renderBudgetList();
+      renderGoalsList();
+    }
+
+    // Update Pie chart data
+    function updatePieChart() {
+      let categoryTotals = {};
+      transactions.filter(txn => txn.type === 'expense').forEach(txn => {
+        if (!categoryTotals[txn.category]) categoryTotals[txn.category] = 0;
+        categoryTotals[txn.category] += txn.amount;
+      });
+      let labels = Object.keys(categoryTotals);
+      let data = Object.values(categoryTotals);
+      if (labels.length === 0) {
+        pieChart.data.labels = ['No Expenses'];
+        pieChart.data.datasets[0].data = [1];
+        pieChart.data.datasets[0].backgroundColor = ['#aaa'];
+      } else {
+        pieChart.data.labels = labels;
+        pieChart.data.datasets[0].data = data;
+        pieChart.data.datasets[0].backgroundColor = pieColors.slice(0, labels.length);
+      }
+      pieChart.update();
+    }
+
+    // Transactions page rendering & filtering
+    function renderTransactionsTableAll(searchText = '', type = '') {
+      let data = transactions.slice();
+      if (type) data = data.filter(txn => txn.type === type);
+      if (searchText) data = data.filter(txn => txn.category.toLowerCase().includes(searchText.toLowerCase()));
+      txnTableAll.innerHTML = '';
+      if (data.length === 0) {
+        txnTableAll.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#ffd740;">No transactions found.</td></tr>`;
+        txnCountSpan.textContent = '';
+        return;
+      }
+      data.forEach((txn, idx) => {
+        const realIndex = transactions.indexOf(txn);
+        let row = document.createElement('tr');
+        row.innerHTML = `<td>${idx + 1}</td><td>${txn.type}</td><td>${txn.category}</td>
+          <td>₹${txn.amount}</td><td>${txn.date || ''}</td>
+          <td><button class="del-btn" data-id="${realIndex}">Delete</button></td>`;
+        txnTableAll.appendChild(row);
+      });
+      txnCountSpan.textContent = data.length + " transaction(s) displayed";
+      document.querySelectorAll('.del-btn').forEach(btn => {
+        btn.onclick = function () {
+          const idx = parseInt(this.getAttribute('data-id'));
+          const txn = transactions[idx];
+          if (txn.type === 'income') income -= txn.amount;
+          else expenses -= txn.amount;
+          transactions.splice(idx, 1);
+          updateSummary();
+          updatePieChart();
+          renderTransactionsTableAll(searchInput.value, filterType.value);
+          renderBudgetList();
+          renderGoalsList();
+        };
+      });
+    }
+    searchInput.oninput = () => renderTransactionsTableAll(searchInput.value, filterType.value);
+    filterType.onchange = () => renderTransactionsTableAll(searchInput.value, filterType.value);
+
+    // Budget Page functions
+    budgetSetBtn.onclick = () => {
+      let cat = budgetCategorySelect.value;
+      let amt = parseInt(budgetAmountInput.value, 10);
+      if (isNaN(amt) || amt <= 0) {
+        alert('Please enter a positive limit amount');
+        return;
+      }
+      budgets[cat] = amt;
+      budgetAmountInput.value = '';
+      renderBudgetList();
+    };
+    function calculateSpentForCategory(cat) {
+      if (cat === '__monthly__') {
+        return transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+      }
+      return transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((acc, t) => acc + t.amount, 0);
+    }
+    function renderBudgetList() {
+      budgetList.innerHTML = '';
+      const entries = Object.entries(budgets);
+      if (entries.length === 0) {
+        budgetList.innerHTML = `<p style="text-align:center;color:#ffd740;">No budget limits set. Add above!</p>`;
+        return;
+      }
+      entries.forEach(([cat, limit]) => {
+        const spent = calculateSpentForCategory(cat);
+        const progressPercent = Math.min((spent / limit) * 100, 100);
+        const overLimit = spent > limit;
+        let label = cat === '__monthly__' ? 'Monthly Total' : cat;
+        const item = document.createElement('div');
+        item.className = 'budget-item';
+        item.innerHTML = `
+          <h4>${label}</h4>
+          <div><strong>Limit:</strong> ₹${limit.toLocaleString()} &nbsp;&nbsp; <strong>Spent:</strong> ₹${spent.toLocaleString()}</div>
+          <div class="progress-container">
+            <div class="progress-bar${overLimit ? ' over-limit' : ''}" style="width:${progressPercent}%"></div>
+          </div>
+        `;
+        budgetList.appendChild(item);
+      });
+    }
+
+    // Goals Page functions
+    goalAddBtn.onclick = () => {
+      let name = goalNameInp.value.trim();
+      let target = parseInt(goalTargetInp.value, 10);
+      if (!name) {
+        alert('Please enter a goal name');
+        return;
+      }
+      if (isNaN(target) || target <= 0) {
+        alert('Please enter a positive target amount');
+        return;
+      }
+      goals.push({ name, target });
+      goalNameInp.value = '';
+      goalTargetInp.value = '';
+      renderGoalsList();
+    };
+    function renderGoalsList() {
+      goalListDiv.innerHTML = '';
+      if (goals.length === 0) {
+        goalListDiv.innerHTML = '<p style="text-align:center; color:#ffd740;">No saving goals set. Add a goal above!</p>';
+        return;
+      }
+      const currentSaving = income - expenses;
+      goals.forEach(goal => {
+        let progressPercent = Math.min((currentSaving / goal.target) * 100, 100);
+        let goalDiv = document.createElement('div');
+        goalDiv.className = 'goal-item';
+        goalDiv.innerHTML = `
+          <h4>${goal.name}</h4>
+          <div>Target: ₹${goal.target.toLocaleString()}</div>
+          <div>Current Savings: ₹${currentSaving}</div>
+          <div class="goal-progress-container">
+            <div class="goal-progress-bar${progressPercent === 100 ? ' completed' : ''}" style="width: ${progressPercent}%;"></div>
+          </div>
+        `;
+        goalListDiv.appendChild(goalDiv);
+      });
+    }
+
+    // Settings Page functions integrated above...
+
+    // Dashboard add transactions buttons
+    addIncomeBtn.onclick = () => {
+      let amount = parseInt(prompt('Enter income amount:'), 10);
+      if (!isNaN(amount) && amount > 0) addTransaction('income', 'Income', amount);
+    };
+    addExpenseBtn.onclick = () => {
+      let amount = parseInt(prompt('Enter expense amount:'), 10);
+      let category = prompt('Enter expense category (e.g. Food, Rent):');
+      if (!category) category = 'Other';
+      if (!isNaN(amount) && amount > 0) addTransaction('expense', category, amount);
+    };
+    addTxnBtn.onclick = () => {
+      let type = txnCategorySelect.value === 'Income' ? 'income' : 'expense';
+      let category = txnCategorySelect.value;
+      let amount = parseInt(txnAmount.value, 10);
+      addTransaction(type, category, amount);
+      txnAmount.value = "";
+    };
+
+    // Initialize all on page load
+    updateSummary();
+    updatePieChart();
+  </script>
+</body>
+</html>
+
